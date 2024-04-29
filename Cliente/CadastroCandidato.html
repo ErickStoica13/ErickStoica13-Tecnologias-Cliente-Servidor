@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="a.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Candidato</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/Logout.html">Logout</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+                <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+                <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+                <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+            </ul>
+        </nav>
+    </header>
+<div class="container">
+    <h1>Cadastro de Candidato</h1>
+    <form id="cadastroForm">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" class="input-field" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="input-field" required>
+
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" class="input-field" required>
+
+        <button type="submit" class="btn">Cadastrar Candidato</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('cadastroForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+    
+        const serverIP = sessionStorage.getItem('serverIP');
+        if (!serverIP) {
+            alert('IP do servidor não encontrado na Session Storage.');
+            return;
+        }
+    
+        const formData = new FormData(this);
+        const formDataJSON = {};
+        formData.forEach((value, key) => {
+            formDataJSON[key] = value;
+        });
+    
+        try {
+            const response = await fetch(`${serverIP}/usuarios/candidato`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formDataJSON)
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.mensagem);
+                console.log(data); 
+            } else {
+                const errorData = await response.json();
+                alert(errorData.mensagem);
+            }
+        } catch (error) {
+            console.error('Erro ao cadastrar candidato:', error);
+            alert('Erro ao cadastrar candidato. Verifique o console para mais detalhes.');
+        }
+    });
+    </script>
+    
+    </body>
+    </html>

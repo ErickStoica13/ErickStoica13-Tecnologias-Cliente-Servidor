@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="a.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logout</title>
+<style>
+    img {
+        display: block;
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<header>
+        <nav>
+            <ul class="menu">
+                <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/Logout.html">Logout</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+                <li><a href="">Ler os Dados</a></li>
+                <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+                <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+            </ul>
+        </nav>
+</header>
+
+<h1>Logout</h1>
+<img src="https://pm1.narvii.com/6503/3f03cb33d8c98490760a2ae1941f56d138e7a51f_hq.jpg" alt="Descrição da Imagem">
+<button onclick="logout()">Logout</button>
+
+<script>
+    function logout() {
+      
+      const serverIP = sessionStorage.getItem('serverIP');
+      
+      if (!serverIP) {
+        alert('IP do servidor não encontrado na Session Storage.');
+        return;
+      }
+    
+      
+      const token = sessionStorage.getItem('token');
+    
+      if (!token) {
+        alert('erro/token nao encontrado.');
+        return;
+      }
+    
+      
+      fetch(`${serverIP}/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensagem); 
+        if (data.mensagem === 'Sucesso') {
+          
+          sessionStorage.removeItem('token');
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao fazer logout:', error);
+        alert('Erro ao fazer logout. Verifique o console para mais detalhes.');
+      });
+    }
+    </script>
+    
+    </body>
+</html>
+

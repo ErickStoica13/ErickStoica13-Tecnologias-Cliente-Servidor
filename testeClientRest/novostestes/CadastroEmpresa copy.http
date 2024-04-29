@@ -1,0 +1,12 @@
+POST http://127.0.0.1:8000/usuarios/empresa
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTQxODIzNTgsImV4cCI6MTcxNDE4NTk1OCwibmJmIjoxNzE0MTgyMzU4LCJqdGkiOiJUWWFaUTMyOFBLMm9ndGljIiwic3ViIjoiMTkiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.OaFFPjNi3he-erpmQkaVtKDSIy-0UNXhzKXt06pihps 
+
+{
+  "nome": "azzz13",
+  "email": "admin@aaa.com",
+  "senha": "admin123",
+  "ramo": "ADS",
+  "descricao": "abcdefghijklamopqrstuvwxyz"
+}
+//cadastro do usuario

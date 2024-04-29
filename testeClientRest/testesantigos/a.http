@@ -1,0 +1,5 @@
+GET http://127.0.0.1:8000/api/usuario
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzE0MDg5MzQ2LCJleHAiOjE3MTQwOTI5NDYsIm5iZiI6MTcxNDA4OTM0NiwianRpIjoiZEFaMnR0cVBPcVRrYklNUyIsInN1YiI6IjEzIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.XDj4_3qkmQqgYjRYRzZApu2gUS2oba1iws9L8LLalfc
+
+{}
+//ler dados empresa teste
