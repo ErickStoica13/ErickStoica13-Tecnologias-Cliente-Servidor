@@ -1,0 +1,24 @@
+PUT http://127.0.0.1:8000/usuario
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTY5MjY3ODksImV4cCI6MTcxNjkzMDM4OSwibmJmIjoxNzE2OTI2Nzg5LCJqdGkiOiJLU3cwZ3RsVzlpY3NzQ0VuIiwic3ViIjoiMTA0IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.v9tGy-PfhBlZKdQaiuWD2apIW_jfrUY-3k-060mACSw
+
+{
+  "nome": "JINX",
+  "email": "a@gmail.com",
+  "senha": "admin123",
+  "competencias": [
+    {
+      "id": 1,
+      "nome": "PHP"
+    }
+  ],
+  "experiencia": [
+    {
+      "id":"",
+      "nome_empresa": "Empresa A Editada",
+      "inicio": "2023-01-01",
+      "fim": "2023-12-01",
+      "cargo": "Desenvolvedor Senior"
+    }
+  ]
+}

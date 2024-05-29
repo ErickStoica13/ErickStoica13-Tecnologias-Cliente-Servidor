@@ -1,0 +1,11 @@
+PUT http://192.168.1.10:8000/usuario
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTkyLjE2OC4xLjEwOjgwMDAvbG9naW4iLCJpYXQiOjE3MTU5ODc4NjgsImV4cCI6MTcxNTk5MTQ2OCwibmJmIjoxNzE1OTg3ODY4LCJqdGkiOiJXMnFCekxmUENmUDQ0eW84Iiwic3ViIjoiOTIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.0mSAM0iNbN_H0q_t-XEMu_BzogeMj-rJAMPNtRu1Rq0
+
+{
+  "nome": "CAOS13",
+  "email": "caos@caos.com",
+  "senha": "admin123",
+  "ramo": "ADS",
+  "descricao": "abcdefghijklamopqrstuvwxyz"
+}

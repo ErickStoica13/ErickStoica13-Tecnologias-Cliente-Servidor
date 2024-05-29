@@ -1,0 +1,8 @@
+POST http://127.0.0.1:8000/competencias/cadastro
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTY3NjUwODMsImV4cCI6MTcxNjc2ODY4MywibmJmIjoxNzE2NzY1MDgzLCJqdGkiOiJzNWR3WEJyT1BHT1A5M2JNIiwic3ViIjoiMTA0IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.q8-g4qh7YMVymHJgXCxx9a3AaNcJK4o4JN1WNqyld08
+
+{
+    "id": 11,
+    "nome": "Game Maker"
+}

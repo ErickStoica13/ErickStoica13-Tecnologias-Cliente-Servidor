@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="a.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leitura do Usuário</title>
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .input-field {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+  
+</style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/Logout.html">Logout</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+                <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+                <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+                <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Leitura do Próprio Usuário</h1>
+        <div id="userData"></div>
+        <button class="btn" onclick="lerUsuario()">Ler Usuário</button>
+        <button class="btn" onclick="apagarUsuario()">Apagar</button>
+        
+    </div>
+    
+    <script>
+    function lerUsuario() {
+        const serverIP = sessionStorage.getItem('serverIP');
+        const token = sessionStorage.getItem('token');
+    
+        if (!serverIP || !token) {
+            alert('IP do servidor ou token não encontrados na Session Storage.');
+            return;
+        }
+    
+        fetch(`${serverIP}/usuario`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const userDataDiv = document.getElementById('userData');
+            userDataDiv.innerHTML = '';
+    
+            if (data.mensagem) {
+                userDataDiv.innerHTML = `<p>${data.mensagem}</p>`;
+            } else {
+                const inputs = [];
+                Object.keys(data).forEach(key => {
+                    if (Array.isArray(data[key])) {
+                        data[key].forEach(item => {
+                            Object.keys(item).forEach(subKey => {
+                                const input = document.createElement('input');
+                                input.setAttribute('type', 'text');
+                                input.setAttribute('class', 'input-field');
+                                input.setAttribute('value', item[subKey]);
+                                input.setAttribute('readonly', true);
+                                input.setAttribute('placeholder', `${key}.${subKey}`);
+                                inputs.push(input);
+                            });
+                        });
+                    } else {
+                        const input = document.createElement('input');
+                        input.setAttribute('type', 'text');
+                        input.setAttribute('class', 'input-field');
+                        input.setAttribute('value', data[key]);
+                        input.setAttribute('readonly', true);
+                        input.setAttribute('placeholder', key);
+                        inputs.push(input);
+                    }
+                });
+                inputs.forEach(input => userDataDiv.appendChild(input));
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao ler usuário:', error);
+            alert('Erro ao ler usuário. Verifique o console para mais detalhes.');
+        });
+    }
+
+    function apagarUsuario() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/usuario`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            // Redirecionar para a página de login ou limpar a sessão
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.mensagem) {
+            alert(data.mensagem);
+        } else {
+            alert('Usuário removido com sucesso.');
+        }
+        // Remover o token da session storage após apagar o usuário
+        sessionStorage.removeItem('token');
+    })
+    .catch(error => {
+        console.error('Erro ao apagar usuário:', error);
+        alert('Erro ao apagar usuário. Verifique o console para mais detalhes.');
+    });
+}
+
+
+    </script>
+    
+    </body>
+    </html>
