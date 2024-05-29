@@ -15,7 +15,10 @@
             <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
             <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+<<<<<<< HEAD
             <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
             <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
             <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
         </ul>
@@ -34,14 +37,23 @@
   <button type="submit" value="Login">Login</button>
 </form>
 
+<<<<<<< HEAD
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
 //conectar ao servidor
+=======
+<script>
+
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
 function connectToServer() {
   const ipInput = document.getElementById('ip_server');
   const serverIP = ipInput.value;
 
+<<<<<<< HEAD
   //salvando o ip do server na Session Storage
+=======
+  
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
   sessionStorage.setItem('serverIP', serverIP);
 
   alert('Conectado ao servidor: ' + serverIP);
@@ -50,7 +62,11 @@ function connectToServer() {
 document.getElementById('loginForm').addEventListener('submit', async function(event) {
   event.preventDefault(); 
 
+<<<<<<< HEAD
   //pegando o ip do servidor da Session Storage
+=======
+ 
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
   const serverIP = sessionStorage.getItem('serverIP');
   
   if (!serverIP) {
@@ -58,6 +74,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     return;
   }
 
+<<<<<<< HEAD
   const formData = new FormData(this);
   const formDataJSON = {};
   formData.forEach((value, key) => {
@@ -77,10 +94,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(formDataJSON)
+=======
+  try {
+    const response = await fetch(`${serverIP}/login`, { 
+      method: 'POST',
+      body: new FormData(this)
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
     });
 
     if (response.ok) {
       const data = await response.json();
+<<<<<<< HEAD
       const token = data.token; 
       alert('Login bem-sucedido! Token: ' + token);
       sessionStorage.setItem('token', token);
@@ -89,6 +113,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       const errorData = await response.json();
       const errorMessage = errorData.mensagem;
       alert('Erro ao fazer login. Código de status: ' + response.status + errorMessage);
+=======
+      const token = data.token;
+
+      
+
+      alert('Login bem-sucedido! Token: ' + token);
+      sessionStorage.setItem('token', token);
+     
+    } else {
+      alert('Erro ao fazer login. Código de status: ' + response.status);
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
     }
   } catch (error) {
     console.error('Erro ao fazer login:', error);
@@ -100,4 +135,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 </body>
 </html>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806

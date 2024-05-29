@@ -15,7 +15,10 @@
                 <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
                 <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
                 <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+<<<<<<< HEAD
                 <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
                 <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
                 <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
             </ul>
@@ -43,15 +46,24 @@
     </form>
 </div>
 
+<<<<<<< HEAD
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
 <script>
 document.getElementById('cadastroForm').addEventListener('submit', async function(event) {
     event.preventDefault(); 
 
     const serverIP = sessionStorage.getItem('serverIP');
+<<<<<<< HEAD
     //const token = sessionStorage.getItem('token');
     if (!serverIP) {
         alert('IP do servidor não encontrado na Session Storage.');
+=======
+    const token = sessionStorage.getItem('token');
+    if (!serverIP || !token) {
+        alert('Token ou IP do servidor não encontrado na Session Storage.');
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
         return;
     }
 
@@ -61,17 +73,25 @@ document.getElementById('cadastroForm').addEventListener('submit', async functio
         formDataJSON[key] = value;
     });
 
+<<<<<<< HEAD
    
     const senha = formDataJSON['senha'];
     const senhaMD5 = CryptoJS.MD5(senha).toString();
 
     formDataJSON['senha'] = senhaMD5;
 
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
     try {
         const response = await fetch(`${serverIP}/usuarios/empresa`, {
             method: 'POST',
             headers: {
+<<<<<<< HEAD
                 'Content-Type': 'application/json'
+=======
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
             },
             body: JSON.stringify(formDataJSON)
         });
@@ -92,4 +112,8 @@ document.getElementById('cadastroForm').addEventListener('submit', async functio
 </script>
 
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806

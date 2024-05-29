@@ -15,7 +15,10 @@
                 <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
                 <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
                 <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+<<<<<<< HEAD
                 <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+=======
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
                 <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
                 <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
             </ul>
@@ -37,22 +40,34 @@
     </form>
 </div>
 
+<<<<<<< HEAD
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
     document.getElementById('cadastroForm').addEventListener('submit', async function(event) {
         event.preventDefault();
 
+=======
+<script>
+    document.getElementById('cadastroForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+    
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
         const serverIP = sessionStorage.getItem('serverIP');
         if (!serverIP) {
             alert('IP do servidor não encontrado na Session Storage.');
             return;
         }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
         const formData = new FormData(this);
         const formDataJSON = {};
         formData.forEach((value, key) => {
             formDataJSON[key] = value;
         });
+<<<<<<< HEAD
 
         //criptografando a senha em MD5 
         const senha = formDataJSON['senha'];
@@ -63,13 +78,22 @@
 
         try {
             const response = await fetch(`${serverIP}/usuarios/candidatos`, {
+=======
+    
+        try {
+            const response = await fetch(`${serverIP}/usuarios/candidato`, {
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formDataJSON)
             });
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
             if (response.ok) {
                 const data = await response.json();
                 alert(data.mensagem);
@@ -83,6 +107,13 @@
             alert('Erro ao cadastrar candidato. Verifique o console para mais detalhes.');
         }
     });
+<<<<<<< HEAD
 </script>
 </body>
 </html>
+=======
+    </script>
+    
+    </body>
+    </html>
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806

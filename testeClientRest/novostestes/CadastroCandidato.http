@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 POST http://25.2.28.236:8000/usuarios/candidatos
+=======
+POST http://127.0.0.1:8000/usuarios/candidato
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
 Content-Type: application/json
 
 {

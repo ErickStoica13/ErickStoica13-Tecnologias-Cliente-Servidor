@@ -1,5 +1,9 @@
 POST http://127.0.0.1:8000/usuarios/empresa
 Content-Type: application/json
+<<<<<<< HEAD
+=======
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTQxODIzNTgsImV4cCI6MTcxNDE4NTk1OCwibmJmIjoxNzE0MTgyMzU4LCJqdGkiOiJUWWFaUTMyOFBLMm9ndGljIiwic3ViIjoiMTkiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.OaFFPjNi3he-erpmQkaVtKDSIy-0UNXhzKXt06pihps 
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
 
 {
   "nome": "azzz13",

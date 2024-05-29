@@ -2,6 +2,10 @@ POST http://127.0.0.1:8000/login
 Content-Type: application/json
 
 {
+<<<<<<< HEAD
   "email": "caos@caos.com",
+=======
+  "email": "tste@teste44.com",
+>>>>>>> 5eac2836b4d9dc3621ca877e6423cd811c0ee806
   "senha": "admin123"
 }
