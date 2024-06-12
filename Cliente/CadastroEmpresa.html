@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="a.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Empresa</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+                <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+                <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+                <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+                <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+            </ul>
+        </nav>
+    </header>
+<div class="container">
+    <h1>Cadastro de Empresa</h1>
+    <form id="cadastroForm">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" class="input-field" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="input-field" required>
+
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" class="input-field" required>
+
+        <label for="ramo">Ramo:</label>
+        <input type="text" id="ramo" name="ramo" class="input-field" required>
+
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao" class="input-field" rows="4" required></textarea>
+
+        <button type="submit" class="btn">Cadastrar Empresa</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+document.getElementById('cadastroForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); 
+
+    const serverIP = sessionStorage.getItem('serverIP');
+    //const token = sessionStorage.getItem('token');
+    if (!serverIP) {
+        alert('IP do servidor não encontrado na Session Storage.');
+        return;
+    }
+
+    const formData = new FormData(this);
+    const formDataJSON = {};
+    formData.forEach((value, key) => {
+        formDataJSON[key] = value;
+    });
+
+   
+    const senha = formDataJSON['senha'];
+    const senhaMD5 = CryptoJS.MD5(senha).toString();
+
+    formDataJSON['senha'] = senhaMD5;
+
+    try {
+        const response = await fetch(`${serverIP}/usuarios/empresa`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formDataJSON)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('Cadastro de empresa realizado com sucesso!\n' + data.mensagem);
+            console.log(data); 
+        } else {
+            const errorData = await response.json();
+            alert('Erro ao cadastrar empresa.\n' + errorData.mensagem);
+        }
+    } catch (error) {
+        console.error('Erro ao cadastrar empresa:', error);
+        alert('Erro ao cadastrar empresa. Verifique o console para mais detalhes.');
+    }
+});
+</script>
+
+</body>
+</html>

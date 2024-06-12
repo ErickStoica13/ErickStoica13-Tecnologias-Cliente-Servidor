@@ -1,0 +1,9 @@
+PUT http://192.168.1.10:8000/usuario
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTkyLjE2OC4xLjEwOjgwMDAvbG9naW4iLCJpYXQiOjE3MTU1NjMwOTIsImV4cCI6MTcxNTU2NjY5MiwibmJmIjoxNzE1NTYzMDkyLCJqdGkiOiJGQld5QVYydHdYYVZhMUo3Iiwic3ViIjoiODgiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.BlWIq1NB6cendHd-NyKITOAmRzCmrfv6j_A5WVq-pNc
+
+{
+  "nome": "azzz13",
+  "email": "caos@dads.com",
+  "senha": "adasd123123",
+}

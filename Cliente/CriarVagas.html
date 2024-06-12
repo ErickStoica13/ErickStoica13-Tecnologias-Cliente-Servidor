@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="a.css">
+    <title>Cadastro de Vagas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .input-field, .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .btn-add, .btn-remove {
+            width: auto;
+        }
+        .item-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+            <li><button class="btn" onclick="connectToServer()">Conectar-se ao Servidor</button></li>
+        </ul>
+    </nav>
+</header>
+<div class="container">
+    <h1>Cadastro de Vagas</h1>
+    <input type="text" id="vagaTitulo" class="input-field" placeholder="Título">
+    <textarea id="vagaDescricao" class="input-field" placeholder="Descrição"></textarea>
+    <input type="number" id="vagaRamo" class="input-field" placeholder="ID do Ramo">
+    <div id="vagaCompetenciasContainer">
+        <h3>Competências</h3>
+        <button class="btn btn-add" onclick="addCompetenciaVaga()">Adicionar Competência</button>
+    </div>
+    <input type="number" id="vagaExperiencia" class="input-field" placeholder="Experiência mínima (anos)">
+    <input type="number" id="vagaSalarioMin" class="input-field" placeholder="Salário Mínimo">
+    <input type="number" id="vagaSalarioMax" class="input-field" placeholder="Salário Máximo">
+    <select id="vagaAtivo" class="input-field">
+        <option value="true">Ativo</option>
+        <option value="false">Inativo</option>
+    </select>
+    <button class="btn" onclick="cadastrarVaga()">Cadastrar Vaga</button>
+    <button class="btn" onclick="redirecionarPagina()">Editar Vaga</button>
+</div>
+
+<script>
+function connectToServer() {
+    const serverIP = document.getElementById('ip_server').value;
+    sessionStorage.setItem('serverIP', serverIP);
+    alert('Conectado ao servidor: ' + serverIP);
+}
+
+function addCompetenciaVaga() {
+    const competenciasContainer = document.getElementById('vagaCompetenciasContainer');
+    const competenciaGroup = document.createElement('div');
+    competenciaGroup.className = 'item-group';
+    competenciaGroup.innerHTML = `
+        <input type="text" class="input-field" placeholder="ID da Competência">
+        <input type="text" class="input-field" placeholder="Nome da Competência">
+        <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+    `;
+    competenciasContainer.appendChild(competenciaGroup);
+}
+
+function removeItem(button) {
+    button.parentElement.remove();
+}
+
+function cadastrarVaga() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    const titulo = document.getElementById('vagaTitulo').value;
+    const descricao = document.getElementById('vagaDescricao').value;
+    const ramo_id = parseInt(document.getElementById('vagaRamo').value);
+    const experiencia = parseInt(document.getElementById('vagaExperiencia').value);
+    const salario_min = parseInt(document.getElementById('vagaSalarioMin').value);
+    const salario_max = parseInt(document.getElementById('vagaSalarioMax').value);
+    const ativo = document.getElementById('vagaAtivo').value === 'true';
+
+    const competencias = Array.from(document.querySelectorAll('#vagaCompetenciasContainer .item-group')).map(group => ({
+        id: parseInt(group.children[0].value),
+        nome: group.children[1].value
+    }));
+
+    const body = JSON.stringify({
+        ramo_id: ramo_id,
+        titulo: titulo,
+        descricao: descricao,
+        competencias: competencias,
+        experiencia: experiencia,
+        salario_min: salario_min,
+        salario_max: salario_max,
+        ativo: ativo
+    });
+
+    alert('Dados enviados ao servidor:\n' + body);
+
+    fetch(`${serverIP}/vagas`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: body
+    })
+    .then(response => {
+        if (response.status === 422) {
+            return response.json().then(data => {
+                alert('Erro ao validar dados: ' + data.mensagem);
+            });
+        } else if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status !== 201) {
+            alert('Erro inesperado ao cadastrar vaga');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            alert(data.mensagem || 'Vaga criada com sucesso.');
+            //alert('Dados enviados ao servidor:\n' + body);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao cadastrar vaga:', error);
+        alert('Erro ao cadastrar vaga. Verifique o console para mais detalhes.');
+    });
+}
+
+function redirecionarPagina() {
+        // Redireciona para o arquivo EditarVagas.html
+        window.location.href = 'file:///C:/xampp/htdocs/Cliente/EditarVagas.html';
+    }
+</script>
+</body>
+</html>

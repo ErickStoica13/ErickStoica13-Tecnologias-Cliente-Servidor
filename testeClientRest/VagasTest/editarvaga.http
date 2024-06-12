@@ -1,0 +1,24 @@
+PUT http://192.168.1.13:8000/vagas/4
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTczNzY4NzksImV4cCI6MTcxNzM4MDQ4MCwibmJmIjoxNzE3Mzc2ODgwLCJqdGkiOiJnU0dqcWlOMm1vajNPNUdBIiwic3ViIjoiMTA3IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.z9jHalaRrKoZlAcd5kXjhKaGFzzF2SxfihQnz1beXlc
+
+{
+  "id":4,
+  "ramo_id": 1,
+  "titulo": "Desenvolvedor Front-End",
+  "descricao": "Buscamos desenvolvedor asdgfdhcfghjvlk....",
+  "competencias": [
+    {
+      "id": 1,
+      "nome": "YourSQL"
+    },
+    {
+      "id": 2,
+      "nome": "PHP"
+    }
+  ],
+  "experiencia": 5,
+  "salario_min": 7000.00,
+  "salario_max": 9430.50,
+  "ativo": true
+}

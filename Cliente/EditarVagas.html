@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="a.css">
+    <title>Editar Vaga</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .input-field, .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .btn-add, .btn-search {
+            width: auto;
+        }
+        .item-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Voltar</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="container">
+    <h1>Editar Vaga</h1>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="vagaId" class="input-field" placeholder="ID da Vaga">
+        <button class="btn btn-search" onclick="buscarVaga()">Buscar Vaga</button>
+    </div>
+    <input type="text" id="vagaTitulo" class="input-field" placeholder="Título">
+    <textarea id="vagaDescricao" class="input-field" placeholder="Descrição"></textarea>
+    <input type="number" id="vagaRamo" class="input-field" placeholder="ID do Ramo">
+    <input type="text" id="vagaRamoNome" class="input-field" placeholder="Nome do Ramo" disabled>
+    <textarea id="vagaRamoDescricao" class="input-field" placeholder="Descrição do Ramo" disabled></textarea>
+    <div id="vagaCompetenciasContainer">
+        <h3>Competências</h3>
+        <button class="btn btn-add" onclick="addCompetenciaVaga()">Adicionar Competência</button>
+    </div>
+    <input type="number" id="vagaExperiencia" class="input-field" placeholder="Experiência mínima (anos)">
+    <input type="number" id="vagaSalarioMin" class="input-field" placeholder="Salário Mínimo">
+    <input type="number" id="vagaSalarioMax" class="input-field" placeholder="Salário Máximo">
+    <select id="vagaAtivo" class="input-field">
+        <option value="true">Ativo</option>
+        <option value="false">Inativo</option>
+    </select>
+    <button class="btn" onclick="editarVaga()">Editar Vagas</button>
+    <button class="btn" onclick="consultarCompetencias()">Consultar Competências</button>
+    <button class="btn btn-ramos" onclick="listarRamos()">Listar Ramos</button>
+    <button class="btn btn-danger" onclick="excluirVaga()">Excluir Vaga</button>
+</div>
+<div class="container">
+    <h1>Listar Vagas</h1>
+    <button class="btn" onclick="listarVagas()">Listar Vagas</button>
+    <div id="vagasContainer"></div>
+</div>
+
+
+<script>
+function buscarVaga() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+    const vagaId = document.getElementById('vagaId').value;
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    if (!vagaId) {
+        alert('ID da Vaga é obrigatório.');
+        return;
+    }
+
+    fetch(`${serverIP}/vagas/${vagaId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status !== 200) {
+            alert('Erro inesperado ao buscar vaga');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            document.getElementById('vagaTitulo').value = data.titulo;
+            document.getElementById('vagaDescricao').value = data.descricao;
+            document.getElementById('vagaRamo').value = data.ramo.id;
+            document.getElementById('vagaRamoNome').value = data.ramo.nome;
+            document.getElementById('vagaRamoDescricao').value = data.ramo.descricao;
+            document.getElementById('vagaExperiencia').value = data.experiencia;
+            document.getElementById('vagaSalarioMin').value = data.salario_min;
+            document.getElementById('vagaSalarioMax').value = data.salario_max;
+            document.getElementById('vagaAtivo').value = data.ativo.toString();
+
+            const competenciasContainer = document.getElementById('vagaCompetenciasContainer');
+            competenciasContainer.innerHTML = `
+                <h3>Competências</h3>
+                <button class="btn btn-add" onclick="addCompetenciaVaga()">Adicionar Competência</button>
+            `;
+            data.competencias.forEach(comp => {
+                const competenciaGroup = document.createElement('div');
+                competenciaGroup.className = 'item-group';
+                competenciaGroup.innerHTML = `
+                    <input type="text" class="input-field" placeholder="ID da Competência" value="${comp.id}">
+                    <input type="text" class="input-field" placeholder="Nome da Competência" value="${comp.nome}">
+                    <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+                `;
+                competenciasContainer.appendChild(competenciaGroup);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar vaga:', error);
+        alert('Erro ao buscar vaga. Verifique o console para mais detalhes.');
+    });
+}
+
+function editarVaga() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    const id = parseInt(document.getElementById('vagaId').value);
+    const titulo = document.getElementById('vagaTitulo').value;
+    const descricao = document.getElementById('vagaDescricao').value;
+    const ramo_id = parseInt(document.getElementById('vagaRamo').value);
+    const experiencia = parseInt(document.getElementById('vagaExperiencia').value);
+    const salario_min = parseInt(document.getElementById('vagaSalarioMin').value);
+    const salario_max = parseInt(document.getElementById('vagaSalarioMax').value);
+    const ativo = document.getElementById('vagaAtivo').value === 'true';
+
+    const competencias = Array.from(document.querySelectorAll('#vagaCompetenciasContainer .item-group')).map(group => ({
+        id: parseInt(group.children[0].value),
+        nome: group.children[1].value
+    }));
+
+    const body = JSON.stringify({
+        id: id,
+        ramo_id: ramo_id,
+        titulo: titulo,
+        descricao: descricao,
+        competencias: competencias,
+        experiencia: experiencia,
+        salario_min: salario_min,
+        salario_max: salario_max,
+        ativo: ativo
+    });
+
+    alert('Dados enviados ao servidor para edição:\n' + body);
+
+    fetch(`${serverIP}/vagas/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: body
+    })
+    .then(response => {
+        if (response.status === 422) {
+            return response.json().then(data => {
+                alert('Erro ao validar dados: ' + data.mensagem);
+            });
+        } else if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status !== 200) {
+            alert('Erro inesperado ao editar vaga');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            alert(data.mensagem || 'Vaga editada com sucesso.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao editar vaga:', error);
+        alert('Erro ao editar vaga. Verifique o console para mais detalhes.');
+    });
+}
+
+function excluirVaga() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+    const id = document.getElementById('vagaId').value;
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    if (!id) {
+        alert('ID da Vaga é obrigatório.');
+        return;
+    }
+
+    if (!confirm('Você tem certeza que deseja excluir esta vaga?')) {
+        return;
+    }
+
+    fetch(`${serverIP}/vagas/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.status === 422) {
+            return response.json().then(data => {
+                alert('Erro ao validar dados: ' + data.mensagem);
+            });
+        } else if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status === 204) {
+            alert('Vaga excluída com sucesso.');
+            document.getElementById('vagaTitulo').value = '';
+            document.getElementById('vagaDescricao').value = '';
+            document.getElementById('vagaRamo').value = '';
+            document.getElementById('vagaExperiencia').value = '';
+            document.getElementById('vagaSalarioMin').value = '';
+            document.getElementById('vagaSalarioMax').value = '';
+            document.getElementById('vagaAtivo').value = 'true';
+            const competenciasContainer = document.getElementById('vagaCompetenciasContainer');
+            competenciasContainer.innerHTML = `
+                <h3>Competências</h3>
+                <button class="btn btn-add" onclick="addCompetenciaVaga()">Adicionar Competência</button>
+            `;
+        } else {
+            alert('Va excluida com sucesso');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao excluir vaga:', error);
+        alert('Erro ao excluir vaga. Verifique o console para mais detalhes.');
+    });
+}
+
+function addCompetenciaVaga() {
+    const competenciasContainer = document.getElementById('vagaCompetenciasContainer');
+    const competenciaGroup = document.createElement('div');
+    competenciaGroup.className = 'item-group';
+    competenciaGroup.innerHTML = `
+        <input type="text" class="input-field" placeholder="ID da Competência">
+        <input type="text" class="input-field" placeholder="Nome da Competência">
+        <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+    `;
+    competenciasContainer.appendChild(competenciaGroup);
+}
+
+function removeItem(button) {
+    button.parentElement.remove();
+}
+
+function listarVagas() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/vagas`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status !== 200) {
+            alert('Erro inesperado ao listar vagas');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            const vagasContainer = document.getElementById('vagasContainer');
+            vagasContainer.innerHTML = '';
+
+            data.forEach(vaga => {
+                const vagaElement = document.createElement('div');
+                vagaElement.className = 'vaga';
+                vagaElement.innerHTML = `
+                    <hr>
+                    <h2>${vaga.titulo}</h2>
+                    <p><strong>ID:</strong> ${vaga.id}</p>
+                    <p><strong>Descrição:</strong> ${vaga.descricao}</p>
+                    <p><strong>ID do Ramo:</strong> ${vaga.ramo.id}</p>
+                    <p><strong>Nome do Ramo:</strong> ${vaga.ramo.nome}</p>
+                    <p><strong>Descrição do Ramo:</strong> ${vaga.ramo.descricao}</p>
+                    <p><strong>Experiência mínima (anos):</strong> ${vaga.experiencia}</p>
+                    <p><strong>Salário Mínimo:</strong> ${vaga.salario_min}</p>
+                    <p><strong>Salário Máximo:</strong> ${vaga.salario_max}</p>
+                    <p><strong>Ativo:</strong> ${vaga.ativo ? 'Sim' : 'Não'}</p>
+                    <p><strong>Competências:</strong></p>
+                    <ul>
+                        ${vaga.competencias.map(comp => `<li>${comp.nome} (ID: ${comp.id})</li>`).join('')}
+                    </ul>
+                `;
+                vagasContainer.appendChild(vagaElement);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao listar vagas:', error);
+        alert('Erro ao listar vagas. Verifique o console para mais detalhes.');
+    });
+}
+
+
+function consultarCompetencias() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/competencias`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        const competencias = data.map(comp => `${comp.id}: ${comp.nome}`).join('\n');
+        alert(`Competências disponíveis:\n${competencias}`);
+    })
+    .catch(error => {
+        console.error('Erro ao consultar competências:', error);
+        alert('Erro ao consultar competências. Verifique o console para mais detalhes.');
+    });
+}
+
+function listarRamos() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/ramos`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        } else if (response.status !== 200) {
+            alert('Erro inesperado ao listar ramos');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            const ramosList = data.map(ramo => `${ramo.id}: ${ramo.nome} - ${ramo.descricao}`).join('\n');
+            alert(`Lista de Ramos:\n${ramosList}`);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao listar ramos:', error);
+        alert('Erro ao listar ramos. Verifique o console para mais detalhes.');
+    });
+}
+</script>
+</body>
+</html>

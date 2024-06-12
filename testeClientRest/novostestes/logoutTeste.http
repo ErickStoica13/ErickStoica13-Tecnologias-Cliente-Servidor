@@ -1,0 +1,5 @@
+POST http://127.0.0.1:8000/logout
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTQ5NTU0OTIsImV4cCI6MTcxNDk1OTA5MiwibmJmIjoxNzE0OTU1NDkyLCJqdGkiOiIwSjRPQW5ROUNpV0FFRkFkIiwic3ViIjoiNzciLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.VxmOVrAkDmJ-t76RRLnE-1lgvAfrhVU7vacL2_sUHns
+
+{}

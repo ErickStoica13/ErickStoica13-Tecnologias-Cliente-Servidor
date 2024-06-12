@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="a.css">
+<title>Editar Usuário</title>
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .input-field {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    .btn-add {
+        margin-bottom: 10px;
+    }
+    .item-group {
+        margin-bottom: 15px;
+    }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+            <li><button class="btn" onclick="connectToServer()">Conectar-se ao Servidor</button></li>
+        </ul>
+    </nav>
+</header>
+<div class="container">
+    <h1>Editar Usuário</h1>
+    <select id="userType" class="input-field" onchange="toggleForm()">
+        <option value="candidato">Candidato</option>
+        <option value="empresa">Empresa</option>
+    </select>
+
+    <div id="candidatoForm">
+        <h2>Editar Candidato</h2>
+        <input type="text" id="candidatoNome" class="input-field" placeholder="Nome">
+        <input type="email" id="candidatoEmail" class="input-field" placeholder="Email">
+        <input type="password" id="candidatoSenha" class="input-field" placeholder="Senha">
+
+        <div id="competenciasContainer">
+            <h3>Competências</h3>
+            <button class="btn btn-add" onclick="addCompetencia()">Adicionar Competência</button>
+        </div>
+
+        <div id="experienciasContainer">
+            <h3>Experiências</h3>
+            <button class="btn btn-add" onclick="addExperiencia()">Adicionar Experiência</button>
+        </div>
+
+        <button class="btn" onclick="editarCandidato()">Salvar Candidato</button>
+        <button class="btn" onclick="consultarCompetencias()">Consultar Competências</button>
+    </div>
+
+    <div id="empresaForm" style="display:none;">
+        <h2>Editar Empresa</h2>
+        <input type="text" id="empresaNome" class="input-field" placeholder="Nome">
+        <input type="email" id="empresaEmail" class="input-field" placeholder="Email">
+        <input type="password" id="empresaSenha" class="input-field" placeholder="Senha">
+        <input type="text" id="empresaRamo" class="input-field" placeholder="Ramo">
+        <textarea id="empresaDescricao" class="input-field" placeholder="Descrição"></textarea>
+        <button class="btn" onclick="editarEmpresa()">Salvar Empresa</button>
+    </div>
+</div>
+
+<script>
+function connectToServer() {
+    const serverIP = document.getElementById('ip_server').value;
+    sessionStorage.setItem('serverIP', serverIP);
+    alert('Conectado ao servidor: ' + serverIP);
+    carregarDados();
+}
+
+function toggleForm() {
+    const userType = document.getElementById('userType').value;
+    if (userType === 'candidato') {
+        document.getElementById('candidatoForm').style.display = 'block';
+        document.getElementById('empresaForm').style.display = 'none';
+    } else {
+        document.getElementById('candidatoForm').style.display = 'none';
+        document.getElementById('empresaForm').style.display = 'block';
+    }
+    carregarDados();
+}
+
+function addCompetencia() {
+    const competenciasContainer = document.getElementById('competenciasContainer');
+    const competenciaGroup = document.createElement('div');
+    competenciaGroup.className = 'item-group';
+    competenciaGroup.innerHTML = `
+        <input type="text" class="input-field" placeholder="ID da Competência">
+        <input type="text" class="input-field" placeholder="Nome da Competência">
+        <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+    `;
+    competenciasContainer.appendChild(competenciaGroup);
+}
+
+function addExperiencia() {
+    const experienciasContainer = document.getElementById('experienciasContainer');
+    const experienciaGroup = document.createElement('div');
+    experienciaGroup.className = 'item-group';
+    experienciaGroup.innerHTML = `
+        <input type="text" class="input-field" placeholder="ID da Experiencia">  
+        <input type="text" class="input-field" placeholder="Nome da Empresa">
+        <input type="date" class="input-field" placeholder="Início">
+        <input type="date" class="input-field" placeholder="Fim">
+        <input type="text" class="input-field" placeholder="Cargo">
+        <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+    `;
+    experienciasContainer.appendChild(experienciaGroup);
+}
+
+function removeItem(button) {
+    button.parentElement.remove();
+}
+
+function carregarDados() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+    const userType = document.getElementById('userType').value;
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/usuario`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (userType === 'candidato') {
+            document.getElementById('candidatoNome').value = data.nome || '';
+            document.getElementById('candidatoEmail').value = data.email || '';
+            document.getElementById('candidatoSenha').value = '';
+
+            const competenciasContainer = document.getElementById('competenciasContainer');
+            competenciasContainer.innerHTML = '<h3>Competências</h3><button class="btn btn-add" onclick="addCompetencia()">Adicionar Competência</button>';
+            (data.competencias || []).forEach(competencia => {
+                const competenciaGroup = document.createElement('div');
+                competenciaGroup.className = 'item-group';
+                competenciaGroup.innerHTML = `
+                    <input type="text" class="input-field" value="${competencia.id}" placeholder="ID da Competência">
+                    <input type="text" class="input-field" value="${competencia.nome}" placeholder="Nome da Competência">
+                    <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+                `;
+                competenciasContainer.appendChild(competenciaGroup);
+            });
+
+            const experienciasContainer = document.getElementById('experienciasContainer');
+            experienciasContainer.innerHTML = '<h3>Experiências</h3><button class="btn btn-add" onclick="addExperiencia()">Adicionar Experiência</button>';
+            (data.experiencia || []).forEach(exp => {
+                const experienciaGroup = document.createElement('div');
+                experienciaGroup.className = 'item-group';
+                experienciaGroup.innerHTML = `
+                    <input type="text" class="input-field" value="${exp.id}" placeholder="ID da Experiencia">
+                    <input type="text" class="input-field" value="${exp.nome_empresa}" placeholder="Nome da Empresa">
+                    <input type="date" class="input-field" value="${exp.inicio}" placeholder="Início">
+                    <input type="date" class="input-field" value="${exp.fim}" placeholder="Fim">
+                    <input type="text" class="input-field" value="${exp.cargo}" placeholder="Cargo">
+                    <button class="btn btn-remove" onclick="removeItem(this)">Remover</button>
+                `;
+                experienciasContainer.appendChild(experienciaGroup);
+            });
+        } else {
+            document.getElementById('empresaNome').value = data.nome || '';
+            document.getElementById('empresaEmail').value = data.email || '';
+            document.getElementById('empresaSenha').value = '';
+            document.getElementById('empresaRamo').value = data.ramo || '';
+            document.getElementById('empresaDescricao').value = data.descricao || '';
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao carregar dados do usuário:', error);
+        alert('Erro ao carregar dados do usuário. Verifique o console para mais detalhes.');
+    });
+}
+
+function editarCandidato() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    const nome = document.getElementById('candidatoNome').value;
+    const email = document.getElementById('candidatoEmail').value;
+    let senha = document.getElementById('candidatoSenha').value;
+
+    if (senha) {
+        senha = CryptoJS.MD5(senha).toString();
+    }
+
+    const competencias = Array.from(document.querySelectorAll('#competenciasContainer .item-group')).map(group => ({
+        id: group.children[0].value,
+        nome: group.children[1].value
+    }));
+
+    const experiencia = Array.from(document.querySelectorAll('#experienciasContainer .item-group')).map(group => ({
+        id: group.children[0].value,
+        nome_empresa: group.children[1].value,
+        inicio: group.children[2].value,
+        fim: group.children[3].value,
+        cargo: group.children[4].value
+    }));
+
+    const body = JSON.stringify({
+        nome: nome,
+        email: email,
+        senha: senha,
+        competencias: competencias,
+        experiencia: experiencia
+    });
+
+    alert('Dados enviados ao servidor:\n' + body);
+
+    fetch(`${serverIP}/usuario`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: body
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.mensagem || 'Usuário atualizado com sucesso.');
+    })
+    .catch(error => {
+        console.error('Erro ao editar candidato:', error);
+        alert('Erro ao editar candidato. Verifique o console para mais detalhes.');
+    });
+}
+
+function editarEmpresa() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    const nome = document.getElementById('empresaNome').value;
+    const email = document.getElementById('empresaEmail').value;
+    let senha = document.getElementById('empresaSenha').value;
+    const ramo = document.getElementById('empresaRamo').value;
+    const descricao = document.getElementById('empresaDescricao').value;
+
+    if (senha) {
+        senha = CryptoJS.MD5(senha).toString();
+    }
+
+    const body = JSON.stringify({
+        nome: nome,
+        email: email,
+        senha: senha,
+        ramo: ramo,
+        descricao: descricao
+    });
+
+    alert('Dados enviados ao servidor:\n' + body);
+
+    fetch(`${serverIP}/usuario`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: body
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.mensagem || 'Usuário atualizado com sucesso.');
+    })
+    .catch(error => {
+        console.error('Erro ao editar empresa:', error);
+        alert('Erro ao editar empresa. Verifique o console para mais detalhes.');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    carregarDados();
+});
+
+function consultarCompetencias() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/competencias`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        const competencias = data.map(comp => `${comp.id}: ${comp.nome}`).join('\n');
+        alert(`Competências disponíveis:\n${competencias}`);
+    })
+    .catch(error => {
+        console.error('Erro ao consultar competências:', error);
+        alert('Erro ao consultar competências. Verifique o console para mais detalhes.');
+    });
+}
+
+</script>
+</body>
+</html>

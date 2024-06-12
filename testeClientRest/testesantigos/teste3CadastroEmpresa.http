@@ -1,0 +1,12 @@
+POST http://127.0.0.1:8000/api/usuarios/empresa
+Content-Type: application/json
+
+{
+  "nome": "admin2",
+  "email": "admin@44admin.com",
+  "senha": "admin123",
+  "ramo": "ADS",
+  "descricao": "abcdefghijklamopqrstuvwxyz"
+  
+}
+//cadastro do usuario
