@@ -22,86 +22,31 @@
 </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul class="menu">
-                <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
-                <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
-                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
-                <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
-                <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
-                <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
-                <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
-                <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
-            </ul>
-        </nav>
-    </header>
-    <div class="container">
-        <h1>Leitura do Próprio Usuário</h1>
-        <div id="userData"></div>
-        <button class="btn" onclick="lerUsuario()">Ler Usuário</button>
-        <button class="btn" onclick="apagarUsuario()">Apagar</button>
-        
-    </div>
-    
-    <script>
-    function lerUsuario() {
-        const serverIP = sessionStorage.getItem('serverIP');
-        const token = sessionStorage.getItem('token');
-    
-        if (!serverIP || !token) {
-            alert('IP do servidor ou token não encontrados na Session Storage.');
-            return;
-        }
-    
-        fetch(`${serverIP}/usuario`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            const userDataDiv = document.getElementById('userData');
-            userDataDiv.innerHTML = '';
-    
-            if (data.mensagem) {
-                userDataDiv.innerHTML = `<p>${data.mensagem}</p>`;
-            } else {
-                const inputs = [];
-                Object.keys(data).forEach(key => {
-                    if (Array.isArray(data[key])) {
-                        data[key].forEach(item => {
-                            Object.keys(item).forEach(subKey => {
-                                const input = document.createElement('input');
-                                input.setAttribute('type', 'text');
-                                input.setAttribute('class', 'input-field');
-                                input.setAttribute('value', item[subKey]);
-                                input.setAttribute('readonly', true);
-                                input.setAttribute('placeholder', `${key}.${subKey}`);
-                                inputs.push(input);
-                            });
-                        });
-                    } else {
-                        const input = document.createElement('input');
-                        input.setAttribute('type', 'text');
-                        input.setAttribute('class', 'input-field');
-                        input.setAttribute('value', data[key]);
-                        input.setAttribute('readonly', true);
-                        input.setAttribute('placeholder', key);
-                        inputs.push(input);
-                    }
-                });
-                inputs.forEach(input => userDataDiv.appendChild(input));
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao ler usuário:', error);
-            alert('Erro ao ler usuário. Verifique o console para mais detalhes.');
-        });
-    }
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+            <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/Mensagens.html">Mensagens</a></li>
+            <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+            <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+        </ul>
+    </nav>
+</header>
+<div class="container">
+    <h1>Leitura do Próprio Usuário</h1>
+    <div id="userData"></div>
+    <button class="btn" onclick="lerUsuario()">Ler Usuário</button>
+    <button class="btn" onclick="listarUsuariosLogados()">Listar Usuários Logados</button> <!-- Novo botão para listar usuários logados -->
+    <div id="usuariosLogados"></div> <!-- Div para exibir os usuários logados -->
+</div>
 
-    function apagarUsuario() {
+<script>
+function lerUsuario() {
     const serverIP = sessionStorage.getItem('serverIP');
     const token = sessionStorage.getItem('token');
 
@@ -111,38 +56,95 @@
     }
 
     fetch(`${serverIP}/usuario`, {
-        method: 'DELETE',
+        method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => {
-        if (response.status === 401) {
-            alert('Usuário não autenticado. Faça o login novamente.');
-            // Redirecionar para a página de login ou limpar a sessão
-            return;
+            'Authorization': `Bearer ${token}`
         }
-        return response.json();
     })
+    .then(response => response.json())
     .then(data => {
+        const userDataDiv = document.getElementById('userData');
+        userDataDiv.innerHTML = '';
+
         if (data.mensagem) {
-            alert(data.mensagem);
+            userDataDiv.innerHTML = `<p>${data.mensagem}</p>`;
         } else {
-            alert('Usuário removido com sucesso.');
+            const inputs = [];
+            Object.keys(data).forEach(key => {
+                if (Array.isArray(data[key])) {
+                    data[key].forEach(item => {
+                        Object.keys(item).forEach(subKey => {
+                            const input = document.createElement('input');
+                            input.setAttribute('type', 'text');
+                            input.setAttribute('class', 'input-field');
+                            input.setAttribute('value', item[subKey]);
+                            input.setAttribute('readonly', true);
+                            input.setAttribute('placeholder', `${key}.${subKey}`);
+                            inputs.push(input);
+                        });
+                    });
+                } else {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'text');
+                    input.setAttribute('class', 'input-field');
+                    input.setAttribute('value', data[key]);
+                    input.setAttribute('readonly', true);
+                    input.setAttribute('placeholder', key);
+                    inputs.push(input);
+                }
+            });
+            inputs.forEach(input => userDataDiv.appendChild(input));
         }
-        // Remover o token da session storage após apagar o usuário
-        sessionStorage.removeItem('token');
     })
     .catch(error => {
-        console.error('Erro ao apagar usuário:', error);
-        alert('Erro ao apagar usuário. Verifique o console para mais detalhes.');
+        console.error('Erro ao ler usuário:', error);
+        alert('Erro ao ler usuário. Verifique o console para mais detalhes.');
     });
 }
 
+function listarUsuariosLogados() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
 
-    </script>
-    
-    </body>
-    </html>
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/usuarios/logados`, { // Endpoint para listar usuários logados
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' // Especificando o Content-Type
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const usuariosLogadosDiv = document.getElementById('usuariosLogados');
+        usuariosLogadosDiv.innerHTML = ''; // Limpa conteúdo anterior
+
+        if (data.length === 0) {
+            usuariosLogadosDiv.innerHTML = '<p>Nenhum usuário logado no momento.</p>';
+        } else {
+            const userList = document.createElement('ul');
+            userList.className = 'user-list';
+
+            data.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `ID: ${user.id}, Nome: ${user.nome}, Email: ${user.email}`;
+                userList.appendChild(listItem);
+            });
+
+            usuariosLogadosDiv.appendChild(userList);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao listar usuários logados:', error);
+        alert('Erro ao listar usuários logados. Verifique o console para mais detalhes.');
+    });
+}
+
+</script>
+
+</body>
+</html>

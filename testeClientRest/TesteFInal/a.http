@@ -1,0 +1,5 @@
+GET http://127.0.0.1:8000/listar-candidatos
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTg3NTIzODAsImV4cCI6MTcxODc1NTk4MCwibmJmIjoxNzE4NzUyMzgwLCJqdGkiOiJmcVgxRnVnNjVIaGtWRjNKIiwic3ViIjoiMTA1IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9._btjmtTGokGHRBHNC0rKi1yXwsDUOG7MmDVmYUewH-k
+
+{}

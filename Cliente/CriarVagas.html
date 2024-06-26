@@ -34,6 +34,7 @@
             <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/Mensagens.html">Mensagens</a></li>
             <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
             <li><button class="btn" onclick="connectToServer()">Conectar-se ao Servidor</button></li>
         </ul>
@@ -133,10 +134,10 @@ function cadastrarVaga() {
         } else if (response.status === 401) {
             alert('Usuário não autenticado. Faça o login novamente.');
             return;
-        } else if (response.status !== 201) {
+        } /*else if (response.status !== 201) {
             alert('Erro inesperado ao cadastrar vaga');
             return;
-        }
+        }*/
         return response.json();
     })
     .then(data => {

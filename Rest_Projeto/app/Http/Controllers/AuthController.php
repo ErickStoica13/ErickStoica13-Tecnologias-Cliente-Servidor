@@ -38,7 +38,11 @@ class AuthController extends Controller
         $token = JWTAuth::fromUser($user);
 
         //gravando o token no banco de dados
-        JWTToken::create(['token' => $token]);
+        //JWTToken::create(['token' => $token]);
+        JWTToken::create([
+            'token' => $token,
+            'user_id' => $user->id, // Preenchendo o user_id com o id do usuário
+        ]);
 
         return response()->json(['token' => $token], 200);
     }

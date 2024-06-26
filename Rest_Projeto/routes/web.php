@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VagaController;
+use App\Http\Controllers\MessageController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -48,7 +49,22 @@ Route::middleware('auth:api')->get('/vagas', [VagaController::class, 'listarVaga
 
 Route::middleware('auth:api')->get('/vagas/{id}', [VagaController::class, 'buscarVaga'])->withoutMiddleware(['web']);
 
-Route::middleware('auth:api')->get('/ramos', [VagaController::class, 'listarRamos'])->withoutMiddleware(['web']);;
+Route::middleware('auth:api')->get('/ramos', [VagaController::class, 'listarRamos'])->withoutMiddleware(['web']);
 
 
+///////////////////////////////NOVAS ROTAS
+//Route::middleware('auth:api')->get('/vagas-ativas', [VagaController::class, 'listarVagasAtivas'])->withoutMiddleware(['web']);
+
+Route::middleware('auth:api')->post('/usuarios/candidatos/buscar', [VagaController::class, 'buscarCandidatos'])->withoutMiddleware(['web']);
+
+//Route::middleware('auth:api')->post('/filtrar-candidatos', [VagaController::class, 'filtrarCandidatos'])->withoutMiddleware(['web']);
+
+//deveria ser no Usercontroller
+Route::middleware('auth:api')->get('/usuarios/logados', [VagaController::class, 'listarUsuariosLogados'])->withoutMiddleware(['web']);
+//Route::middleware('auth:api')->get('/listar-candidatos', [VagaController::class, 'listarCandidatos'])->withoutMiddleware(['web']);
 //Route::middleware('auth:api')->get('/usuario', [UserController::class, 'lerProprioUsuarioEmpresa']);
+
+Route::middleware('auth:api')->post('/mensagem', [MessageController::class, 'mandarMensagem'])->withoutMiddleware(['web']);
+Route::middleware('auth:api')->get('/mensagem', [MessageController::class, 'receberMensagens'])->withoutMiddleware(['web']);
+
+Route::middleware('auth:api')->delete('/mensagem/{id}', [MessageController::class, 'apagarMensagem'])->withoutMiddleware(['web']);

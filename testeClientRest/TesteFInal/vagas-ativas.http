@@ -1,0 +1,6 @@
+GET http://127.0.0.1:8000/vagas-ativas
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbG9naW4iLCJpYXQiOjE3MTg3NTcxNzksImV4cCI6MTcxODc2MDc3OSwibmJmIjoxNzE4NzU3MTc5LCJqdGkiOiJYMFA2Q2JmWTJJd1dBM2M3Iiwic3ViIjoiMTA3IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.NnrCj5Hkk7J4yjin1cYitO1lPMO3NfuxDdW7kW6Ii7w
+
+{}
+

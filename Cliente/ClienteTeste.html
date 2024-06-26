@@ -16,6 +16,7 @@
             <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
             <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/Mensagens.html">Mensagens</a></li>
             <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
             <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
         </ul>
@@ -36,15 +37,14 @@
 
 <button onclick="logout()">Logout</button>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-//conectar ao servidor
+// Conectar ao servidor
 function connectToServer() {
   const ipInput = document.getElementById('ip_server');
   const serverIP = ipInput.value;
 
-  //salvando o ip do server na Session Storage
+  // Salvando o IP do servidor na Session Storage
   sessionStorage.setItem('serverIP', serverIP);
 
   alert('Conectado ao servidor: ' + serverIP);
@@ -53,7 +53,7 @@ function connectToServer() {
 document.getElementById('loginForm').addEventListener('submit', async function(event) {
   event.preventDefault(); 
 
-  //pegando o ip do servidor da Session Storage
+  // Pegando o IP do servidor da Session Storage
   const serverIP = sessionStorage.getItem('serverIP');
   
   if (!serverIP) {
@@ -66,7 +66,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   formData.forEach((value, key) => {
     formDataJSON[key] = value;
   });
-
 
   const senha = formDataJSON['senha'];
   const senhaMD5 = CryptoJS.MD5(senha).toString();
@@ -87,7 +86,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       const token = data.token; 
       alert('Login bem-sucedido! Token: ' + token);
       sessionStorage.setItem('token', token);
-      //salvando o token na session storage
+      // Salvando o token na session storage
+      buscarMensagens();  // Chama a função para buscar mensagens após o login
     } else {
       const errorData = await response.json();
       const errorMessage = errorData.mensagem;
@@ -99,48 +99,89 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   }
 });
 
-function logout() {
-      // pegando novamente o ip da Session storage
-      const serverIP = sessionStorage.getItem('serverIP');
-      
-      if (!serverIP) {
-        alert('IP do servidor não encontrado na Session Storage.');
-        return;
+async function buscarMensagens() {
+  const serverIP = sessionStorage.getItem('serverIP');
+  const token = sessionStorage.getItem('token');
+
+  if (!serverIP || !token) {
+    alert('IP do servidor ou token não encontrados na Session Storage.');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${serverIP}/mensagem`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
-    
-      //pegando o token da Session Storage
-      const token = sessionStorage.getItem('token');
-    
-      if (!token) {
-        alert('erro/token nao encontrado.');
-        return;
-      }
-    
-      //fazendo a solicitacao de Logout
-      fetch(`${serverIP}/logout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({})
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.mensagem); //mensagem q o servidor retorna
-        if (data.mensagem === 'Sucesso') {
-          //limpando a session storage apos o logout
-          sessionStorage.removeItem('token');
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao fazer logout:', error);
-        alert('Erro ao fazer logout. Verifique o console para mais detalhes.');
-      });
+    });
+
+    if (response.status === 401) {
+      alert('Usuário Empresa Logado com Sucesso!');
+      return;
     }
+
+    if (response.ok) {
+      const data = await response.json();
+      exibirMensagens(data);
+    } else {
+      alert('Erro ao buscar mensagens. Código de status: ' + response.status);
+    }
+  } catch (error) {
+    console.error('Erro ao buscar mensagens:', error);
+    alert('Erro ao buscar mensagens. Verifique o console para mais detalhes.');
+  }
+}
+
+function exibirMensagens(mensagens) {
+  mensagens.forEach(mensagem => {
+    if (!mensagem.lida) {
+      alert(`Nova mensagem de ${mensagem.empresa}: ${mensagem.mensagem}`);
+      mensagem.lida = true;  // Marcando a mensagem como lida no cliente
+    }
+  });
+}
+
+function logout() {
+  // Pegando novamente o IP da Session storage
+  const serverIP = sessionStorage.getItem('serverIP');
+  
+  if (!serverIP) {
+    alert('IP do servidor não encontrado na Session Storage.');
+    return;
+  }
+
+  // Pegando o token da Session Storage
+  const token = sessionStorage.getItem('token');
+
+  if (!token) {
+    alert('Erro: token não encontrado.');
+    return;
+  }
+
+  // Fazendo a solicitação de Logout
+  fetch(`${serverIP}/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({})
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(data.mensagem); // Mensagem que o servidor retorna
+    if (data.mensagem === 'Sucesso') {
+      // Limpando a session storage após o logout
+      sessionStorage.removeItem('token');
+    }
+  })
+  .catch(error => {
+    console.error('Erro ao fazer logout:', error);
+    alert('Erro ao fazer logout. Verifique o console para mais detalhes.');
+  });
+}
 </script>
 
 </body>
 </html>
-
-

@@ -37,6 +37,7 @@
             <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
             <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/Mensagens.html">Mensagens</a></li>
             <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
             <li><button class="btn" onclick="connectToServer()">Conectar-se ao Servidor</button></li>
         </ul>
@@ -67,6 +68,7 @@
 
         <button class="btn" onclick="editarCandidato()">Salvar Candidato</button>
         <button class="btn" onclick="consultarCompetencias()">Consultar Competências</button>
+        <button class="btn" onclick="apagarUsuario()">Apagar Candidato</button>
     </div>
 
     <div id="empresaForm" style="display:none;">
@@ -77,6 +79,7 @@
         <input type="text" id="empresaRamo" class="input-field" placeholder="Ramo">
         <textarea id="empresaDescricao" class="input-field" placeholder="Descrição"></textarea>
         <button class="btn" onclick="editarEmpresa()">Salvar Empresa</button>
+        <button class="btn" onclick="apagarUsuario()">Apagar Empresa</button>
     </div>
 </div>
 
@@ -346,6 +349,46 @@ function consultarCompetencias() {
     .catch(error => {
         console.error('Erro ao consultar competências:', error);
         alert('Erro ao consultar competências. Verifique o console para mais detalhes.');
+    });
+}
+
+function apagarUsuario() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    fetch(`${serverIP}/usuario`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert('Usuário não autenticado. Faça o login novamente.');
+            // Redirecionar para a página de login ou limpar a sessão
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.mensagem) {
+            alert(data.mensagem);
+        } else {
+            alert('Usuário removido com sucesso.');
+        }
+        // Remover o token da session storage após apagar o usuário
+        sessionStorage.removeItem('token');
+    })
+    .catch(error => {
+        console.error('Erro ao apagar usuário:', error);
+        alert('Erro ao apagar usuário. Verifique o console para mais detalhes.');
     });
 }
 

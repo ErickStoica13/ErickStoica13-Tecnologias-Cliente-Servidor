@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="a.css">
+    <title>Buscar Perfil de Candidato</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-field {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .competencia-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .competencia-field label {
+            margin-right: 10px;
+        }
+        .competencia-field button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li><a href="file:///C:/xampp/htdocs/Cliente/EditarVagas.html">Voltar</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Buscar Perfil de Candidato</h1>
+        <div id="competenciasContainer">
+            <div class="competencia-field">
+                <label for="competencia1">Competência 1 ID:</label>
+                <input type="number" id="competencia1" class="input-field">
+            </div>
+        </div>
+        <button onclick="adicionarCompetencia()">Adicionar Competência</button>
+        <button onclick="buscarPerfilCandidato()">Buscar Candidatos</button>
+
+        <div id="candidatosContainer"></div>
+    </div>
+
+    <script>
+        let competenciaCount = 1;
+
+        function adicionarCompetencia() {
+            competenciaCount++;
+            const competenciasContainer = document.getElementById('competenciasContainer');
+            const competenciaField = document.createElement('div');
+            competenciaField.className = 'competencia-field';
+            competenciaField.innerHTML = `
+                <label for="competencia${competenciaCount}">Competência ${competenciaCount} ID:</label>
+                <input type="number" id="competencia${competenciaCount}" class="input-field">
+            `;
+            competenciasContainer.appendChild(competenciaField);
+        }
+
+        function buscarPerfilCandidato() {
+            const serverIP = sessionStorage.getItem('serverIP');
+            const token = sessionStorage.getItem('token');
+
+            if (!serverIP || !token) {
+                alert('IP do servidor ou token não encontrados na Session Storage.');
+                return;
+            }
+
+            const competencias = [];
+            for (let i = 1; i <= competenciaCount; i++) {
+                const competenciaValue = document.getElementById(`competencia${i}`).value;
+                if (competenciaValue) competencias.push({ id: parseInt(competenciaValue) });
+            }
+
+            fetch(`${serverIP}/usuarios/candidatos/buscar`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ competencias })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Nenhum candidato encontrado com essas características.');
+                    return;
+                } else if (response.status !== 200) {
+                    alert('Erro inesperado ao buscar candidatos');
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    const candidatosContainer = document.getElementById('candidatosContainer');
+                    candidatosContainer.innerHTML = '';
+
+                    data.candidatos.forEach(candidato => {
+                        const candidatoElement = document.createElement('div');
+                        candidatoElement.className = 'candidato';
+                        candidatoElement.innerHTML = `
+                            <hr>
+                            <h2>${candidato.nome}</h2>
+                            <p><strong>Email:</strong> ${candidato.email}</p>
+                            <p><strong>Tipo:</strong> ${candidato.tipo}</p>
+                            <p><strong>Competências:</strong></p>
+                            <ul>
+                                ${candidato.competencias.map(comp => `<li>${comp.nome} (ID: ${comp.id})</li>`).join('')}
+                            </ul>
+                            <p><strong>Experiências:</strong></p>
+                            <ul>
+                                ${candidato.experiencia.map(exp => `
+                                    <li>
+                                        <p><strong>Empresa:</strong> ${exp.nome_empresa}</p>
+                                        <p><strong>Início:</strong> ${exp.inicio}</p>
+                                        <p><strong>Fim:</strong> ${exp.fim ? exp.fim : 'Presente'}</p>
+                                        <p><strong>Cargo:</strong> ${exp.cargo}</p>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                            <button onclick="mandarMensagem('${candidato.email}')">Enviar Mensagem</button>
+                        `;
+                        candidatosContainer.appendChild(candidatoElement);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar candidatos:', error);
+                alert('Erro ao buscar candidatos. Verifique o console para mais detalhes.');
+            });
+        }
+
+        function mandarMensagem(email) {
+            const serverIP = sessionStorage.getItem('serverIP');
+            const token = sessionStorage.getItem('token');
+
+            if (!serverIP || !token) {
+                alert('IP do servidor ou token não encontrados na Session Storage.');
+                return;
+            }
+
+            fetch(`${serverIP}/mensagem`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ candidatos: [email] })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Usuário não autenticado. Faça o login novamente.');
+                    return;
+                } else if (response.status !== 200) {
+                    alert('Erro inesperado ao enviar mensagem');
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    alert(data.mensagem);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar mensagem:', error);
+                alert('Erro ao enviar mensagem. Verifique o console para mais detalhes.');
+            });
+        }
+    </script>
+</body>
+</html>

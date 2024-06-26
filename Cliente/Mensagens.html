@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="a.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensagens</title>
+<style>
+    .message-container {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+    .message-header {
+        font-weight: bold;
+    }
+    .message-actions {
+        margin-top: 10px;
+    }
+    .message-actions button {
+        margin-right: 10px;
+    }
+</style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="file:///C:/xampp/htdocs/Cliente/ClienteTeste.html">Login</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CriarVagas.html">Criar Vagas</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroEmpresa.html">Cadastrar Empresa</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/CadastroCandidato.html">Cadastrar Candidato</a></li>   
+            <li><a href="file:///C:/xampp/htdocs/Cliente/LerUsuario.html">Ler os Dados</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/EditarUsuario.html">Editar Usuário</a></li>
+            <li><a href="file:///C:/xampp/htdocs/Cliente/Mensagens.html">Mensagens</a></li>
+            <li><input type="text" class="input-field" id="ip_server" placeholder="http://127.0.0.1:8000"></li>
+            <li><button class="button login-button" onclick="connectToServer()">Conectar-se ao Servidor</button></li>      
+        </ul>
+    </nav>
+</header>
+
+<h1>Mensagens Recebidas</h1>
+
+<div id="messagesContainer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+function connectToServer() {
+    const ipInput = document.getElementById('ip_server');
+    const serverIP = ipInput.value;
+
+    sessionStorage.setItem('serverIP', serverIP);
+
+    alert('Conectado ao servidor: ' + serverIP);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    buscarMensagens();
+});
+
+async function buscarMensagens() {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+    const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor, token ou tipo de usuário não encontrados ou inválidos.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${serverIP}/mensagem`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401) {
+            alert('Não autenticado.');
+            return;
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            exibirMensagens(data);
+        } else {
+            alert('Erro ao buscar mensagens. Código de status: ' + response.status);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar mensagens:', error);
+        alert('Erro ao buscar mensagens. Verifique o console para mais detalhes.');
+    }
+}
+
+function exibirMensagens(mensagens) {
+    const messagesContainer = document.getElementById('messagesContainer');
+    messagesContainer.innerHTML = '';
+
+    mensagens.forEach((mensagem) => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message-container';
+        messageElement.innerHTML = `
+            <div class="message-header">De: ${mensagem.empresa}</div>
+            <div class="message-body">Mensagem: ${mensagem.mensagem}</div>
+            <div class="message-status">Status: ${mensagem.lida ? 'Lida' : 'Não Lida'}</div>
+            <div class="message-id">ID: ${mensagem.id}</div>
+            <div class="message-actions">
+                <button onclick="apagarMensagem(${mensagem.id})">Apagar</button>
+            </div>
+        `;
+        messagesContainer.appendChild(messageElement);
+    });
+}
+
+async function apagarMensagem(id) {
+    const serverIP = sessionStorage.getItem('serverIP');
+    const token = sessionStorage.getItem('token');
+
+    if (!serverIP || !token) {
+        alert('IP do servidor ou token não encontrados na Session Storage.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${serverIP}/mensagem/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401) {
+            alert('Não autenticado.');
+            return;
+        }
+
+        if (response.ok) {
+            alert('Mensagem apagada com sucesso!');
+            buscarMensagens(); // Atualizar a lista de mensagens
+        } else {
+            alert('Erro ao apagar mensagem. Código de status: ' + response.status);
+        }
+    } catch (error) {
+        console.error('Erro ao apagar mensagem:', error);
+        alert('Erro ao apagar mensagem. Verifique o console para mais detalhes.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    buscarMensagens();
+});
+</script>
+
+</body>
+</html>
